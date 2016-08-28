@@ -1,0 +1,18 @@
+{
+  "name": "ezapi",
+  "version": "1.0.0",
+  "description": "REST API generator using connected MySQL database's schema as the basis point for the API",
+  "main": "ezapi.js",
+  "scripts": {
+    "test": "test.js"
+  },
+  "author": "Pat Eason <patrick@pateason.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "lodash": "^4.15.0",
+    "mysql": "^2.11.1",
+    "squel": "^5.4.2"
+  }
+}
