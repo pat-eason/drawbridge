@@ -1,5 +1,5 @@
 {
-  "name": "ezapi",
+  "name": "drawbridge",
   "version": "1.0.0",
   "description": "REST API generator using connected MySQL database's schema as the basis point for the API",
   "main": "ezapi.js",
