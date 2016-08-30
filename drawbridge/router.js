@@ -55,6 +55,7 @@ var createRoutes = (next) => {
         console.log(`GET /${table}/:record_id`);
         app.get(`/${table}/:record_id`, function(req, res){
             var record_id = req.params.record_id;
+            var relationships = req.query.relations;
             var query = squel.select()
                              .from(table)
                              .where('id = ?', record_id);
@@ -64,8 +65,18 @@ var createRoutes = (next) => {
                         throw err;
                     }
                     var row = rows[0];
+
                     if(row){
-                        res.send(row);
+                        if(relationships){  //if relationships
+                            database.getRelationships(table, relationships, row, (results) => {
+                                _.forEach(results, (result, key) => {
+                                    row[key] = result;
+                                });
+                                res.send(row);
+                            });
+                        }else{  //if no relationships
+                            res.send(row);
+                        }
                     }else{
                         res.send(null);
                     }

@@ -2,6 +2,7 @@
  * Load modules
  */
 const mysql     = require('mysql');
+const squel     = require('squel');
 
 var schema      = {};
 var connection;
@@ -54,6 +55,49 @@ var getDBInfo = (next) => {
     });
 }
 
+var getPrimaryKey = (table) => {
+    return _.find(schema[table], function(o){
+        return o.Key == 'PRI';
+    }).Field;
+}
+
+var getRelationships = (table, relationships, record, next) => {
+    if(record){
+        relationships = relationships.split(',');
+        var relationships_object = {};
+        var i = 1;
+        _.forEach(relationships, (relationship) => {
+            if(record[relationship]){
+                var primary_key = getPrimaryKey(table);
+                var query = squel.select()
+                                 .from(table)
+                                 .where(`${primary_key} = ?`, record[relationship]);
+                connection.query( query.toString(), function(err, rows, fields){
+                        if(err){
+                            res.status(500).send(err);
+                            throw err;
+                        }
+                        var row = rows[0];
+
+                        if(row){
+                            relationships_object[relationships] = row;
+                        }else{
+                            relationships_object[relationships] = null;
+                        }
+
+                        return next(relationships_object);
+                        $i++;
+                    }
+                );
+            }else{
+                relationships_object[relationships] = null;
+            }
+        });
+    }else{
+        return next(null);
+    }
+}
+
 /**
  * Module
  */
@@ -62,5 +106,6 @@ module.exports = {
     connection  : connection,
     init        : init,
     connect     : connect,
-    getDBInfo   : getDBInfo
+    getDBInfo   : getDBInfo,
+    getRelationships : getRelationships
 }
