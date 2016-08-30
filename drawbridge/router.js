@@ -35,74 +35,71 @@ var init = (next) => {
  * Create routes from database info
  */
 var createRoutes = (next) => {
-    _.forEach(database.schema, function(value, table){
+    _.forEach(database.schema, (value, table) => {
         //get all
         console.log(`GET /${table}`);
-        app.get(`/${table}`, function(req, res){
+        app.get(`/${table}`, (req, res) => {
             var query = squel.select()
                              .from(table);
-            database.connection.query( query.toString(), function(err, rows, fields){
-                    if(err){
-                        res.status(500).send(err);
-                        throw err;
-                    }
-                    res.send(rows);
+            database.connection.query( query.toString(), (err, rows, fields) => {
+                if(err){
+                    res.status(500).send(err);
+                    throw err;
                 }
-            );
+                res.send(rows);
+            });
         });
 
         //get single
         console.log(`GET /${table}/:record_id`);
-        app.get(`/${table}/:record_id`, function(req, res){
+        app.get(`/${table}/:record_id`, (req, res) => {
             var record_id = req.params.record_id;
             var relationships = req.query.relations;
             var query = squel.select()
                              .from(table)
                              .where('id = ?', record_id);
-            database.connection.query( query.toString(), function(err, rows, fields){
-                    if(err){
-                        res.status(500).send(err);
-                        throw err;
-                    }
-                    var row = rows[0];
-
-                    if(row){
-                        if(relationships){  //if relationships
-                            database.getRelationships(table, relationships, row, (results) => {
-                                _.forEach(results, (result, key) => {
-                                    row[key] = result;
-                                });
-                                res.send(row);
-                            });
-                        }else{  //if no relationships
-                            res.send(row);
-                        }
-                    }else{
-                        res.send(null);
-                    }
+            database.connection.query( query.toString(), (err, rows, fields) => {
+                if(err){
+                    res.status(500).send(err);
+                    throw err;
                 }
-            );
+                var row = rows[0];
+
+                if(row){
+                    if(relationships){  //if relationships
+                        database.getRelationships(table, relationships, row, results => {
+                            _.forEach(results, (result, key) => {
+                                row[key] = result;
+                            });
+                            res.send(row);
+                        });
+                    }else{  //if no relationships
+                        res.send(row);
+                    }
+                }else{
+                    res.send(null);
+                }
+            });
         });
 
         //create
         console.log(`POST /${table}`);
-        app.post(`/${table}`, function(req, res){
+        app.post(`/${table}`, (req, res) => {
             var query = squel.insert()
                              .into(table);
             var data = req.body;
             var insert_data = validation.cullData(table, data);
             if(insert_data){
-                _.forEach(insert_data, function(v, k){
+                _.forEach(insert_data, (v, k) => {
                     query.set(k, v);
                 });
                 database.connection.query( query.toString(), function(err, rows, fields){
-                        if(err){
-                            res.status(500).send(err);
-                            throw err;
-                        }
-                        res.send({id:rows.insertId});
+                    if(err){
+                        res.status(500).send(err);
+                        throw err;
                     }
-                )
+                    res.send({id:rows.insertId});
+                });
             }else{
                 res.send(null);
             }
@@ -110,7 +107,7 @@ var createRoutes = (next) => {
 
         //update
         console.log(`PUT /${table}/:record_id`);
-        app.put(`/${table}/:record_id`, function(req, res){
+        app.put(`/${table}/:record_id`, (req, res) => {
             var record_id = req.params.record_id;
             var query = squel.update()
                              .table(table)
@@ -118,17 +115,16 @@ var createRoutes = (next) => {
             var data = req.body;
             var insert_data = validation.cullData(table, data);
             if(insert_data){
-                _.forEach(insert_data, function(v, k){
+                _.forEach(insert_data, (v, k) => {
                     query.set(k, v);
                 });
-                database.connection.query( query.toString(), function(err, rows, fields){
-                        if(err){
-                            res.status(500).send(err);
-                            throw err;
-                        }
-                        res.send(true);
+                database.connection.query( query.toString(), (err, rows, fields) => {
+                    if(err){
+                        res.status(500).send(err);
+                        throw err;
                     }
-                )
+                    res.send(true);
+                });
             }else{
                 res.send(null);
             }
@@ -136,24 +132,23 @@ var createRoutes = (next) => {
 
         //delete
         console.log(`DELETE /${table}/:record_id`);
-        app.delete(`/${table}/:record_id`, function(req, res){
+        app.delete(`/${table}/:record_id`, (req, res) => {
             var record_id = req.params.record_id;
             var query = squel.delete()
                              .from(table)
                              .where('id = ?', record_id);
-            database.connection.query( query.toString(), function(err, rows, fields){
-                    if(err){
-                        res.status(500).send(err);
-                        throw err;
-                    }
-                    res.send(true);
+            database.connection.query( query.toString(), (err, rows, fields) => {
+                if(err){
+                    res.status(500).send(err);
+                    throw err;
                 }
-            )
+                res.send(true);
+            });
         });
 
     });
 
-    app.listen(port, function () {
+    app.listen(port, () => {
       console.log(`REST API listening on port ${port}`);
       typeof next === 'function' && next();   //trigger next step
     });

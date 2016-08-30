@@ -56,7 +56,7 @@ var getDBInfo = (next) => {
 }
 
 var getPrimaryKey = (table) => {
-    return _.find(schema[table], function(o){
+    return _.find(schema[table], o => {
         return o.Key == 'PRI';
     }).Field;
 }
@@ -66,13 +66,13 @@ var getRelationships = (table, relationships, record, next) => {
         relationships = relationships.split(',');
         var relationships_object = {};
         var i = 1;
-        _.forEach(relationships, (relationship) => {
+        _.forEach(relationships, relationship => {
             if(record[relationship]){
                 var primary_key = getPrimaryKey(table);
                 var query = squel.select()
                                  .from(table)
                                  .where(`${primary_key} = ?`, record[relationship]);
-                connection.query( query.toString(), function(err, rows, fields){
+                connection.query( query.toString(), (err, rows, fields) => {
                         if(err){
                             res.status(500).send(err);
                             throw err;
