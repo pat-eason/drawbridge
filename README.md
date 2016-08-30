@@ -3,6 +3,8 @@ Instantly create a REST interface using a MySQL database.
 
 ```node
 npm install
+mv config.json.sample config.json //to rename the sample config
+> update config.json with your database information
 node app.js
 ```
 
